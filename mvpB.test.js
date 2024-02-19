@@ -10,10 +10,10 @@ describe('Sprint 7 Challenge Learner Tests', () => {
   Test the following. You can create separate tests or a single test with multiple assertions.
 
     [1] sum() // throws an error 'pass valid numbers'
-    [2] sum(2, 'seven') // throws an error 'pass valid numbers'
-    [3] sum(1, 3) // returns 4
+    [2] sum(2, 'seven') // throws an error 'pass valid numbers' nfksdflksdmfkls
+    [3] sum(1, 3) // returns 4 fnkdlsfnlksdnfklsd
     [4] sum('1', 2) // returns 3
-    [5] sum('10', '3') // returns 13 nfksdfnsdklfnsdklfnlksdnf
+    [5] sum('10', '3') // returns 13 nfksdfnsdklfnsdklfnlksdnf dsnkfmsdklfmsdklmf
   */
 
     test('throws an error when no input is provided', () => {
