@@ -12,7 +12,7 @@ function Home() {
   return (
     <div>
       <h2>
-        Welcome to Bloom Pizza!
+        Welcome to Bloom Pizza!!!!!
       </h2>
       {/* clicking on the img should navigate to "/order" */}
       <img 
