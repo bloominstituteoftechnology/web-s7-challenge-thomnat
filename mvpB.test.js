@@ -82,9 +82,9 @@ describe('Sprint 7 Challenge Learner Tests', () => {
     expect(text).toBeInTheDocument();
     expect(text).toBeVisible();
   })
-  test('renders a text that reads "Javascript is pretty awesome"', () => {
+  test('renders a text that reads "JavaScript is pretty awesome"', () => {
     render(<HelloWorld />)
-    const text = screen.queryByText("Javascript is pretty awesome");
+    const text = screen.queryByText("JavaScript is pretty awesome");
     expect(text).toBeInTheDocument();
     expect(text).toBeVisible();
   })
