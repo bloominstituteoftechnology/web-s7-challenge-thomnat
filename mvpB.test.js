@@ -73,7 +73,7 @@ describe('Sprint 7 Challenge Learner Tests', () => {
     render(<HelloWorld />)
     const link = screen.queryByText("Blog");
     expect(link).toBeInTheDocument();
-    expect(link).toBeVisible;
+    expect(link).toBeVisible();
   })
 
   test('renders a text that reads "The Truth"', () => {
