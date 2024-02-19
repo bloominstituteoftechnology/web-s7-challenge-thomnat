@@ -7,4 +7,6 @@ import './styles/styles.css'
 const domNode = document.getElementById('root')
 const root = createRoot(domNode)
 
-root.render(<App />)
+root.render(
+  <App />
+)
