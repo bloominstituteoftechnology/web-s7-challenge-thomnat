@@ -13,7 +13,7 @@ describe('Sprint 7 Challenge Learner Tests', () => {
     [2] sum(2, 'seven') // throws an error 'pass valid numbers'
     [3] sum(1, 3) // returns 4
     [4] sum('1', 2) // returns 3
-    [5] sum('10', '3') // returns 13
+    [5] sum('10', '3') // returns 13 nfksdfnsdklfnsdklfnlksdnf
   */
 
     test('throws an error when no input is provided', () => {
