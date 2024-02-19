@@ -59,14 +59,14 @@ describe('Sprint 7 Challenge Learner Tests', () => {
     render(<HelloWorld />)
     const link = screen.queryByText("Home");
     expect(link).toBeInTheDocument();
-    expect(link).toBeVisible;
+    expect(link).toBeVisible();
   })
 
   test('renders a link that reads "About"', () => {
     render(<HelloWorld />)
     const link = screen.queryByText("About");
     expect(link).toBeInTheDocument();
-    expect(link).toBeVisible;
+    expect(link).toBeVisible();
   })
 
   test('renders a link that reads "Blog"', () => {
@@ -80,20 +80,20 @@ describe('Sprint 7 Challenge Learner Tests', () => {
     render(<HelloWorld />)
     const text = screen.queryByText("The Truth");
     expect(text).toBeInTheDocument();
-    expect(text).toBeVisible;
+    expect(text).toBeVisible();
   })
   test('renders a text that reads "Javascript is pretty awesome"', () => {
     render(<HelloWorld />)
-    const text = screen.queryByText("Javascript is pretty awesome", {exact: true});
+    const text = screen.queryByText("Javascript is pretty awesome");
     expect(text).toBeInTheDocument();
-    expect(text).toBeVisible;
+    expect(text).toBeVisible();
   })
 
   test('renders a text that reads "javaScript is pretty"', () => {
     render(<HelloWorld />)
     const text = screen.queryByText("javaScript is pretty", {exact: false});
     expect(text).toBeInTheDocument();
-    expect(text).toBeVisible;
+    expect(text).toBeVisible();
   })
 })
 
