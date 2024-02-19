@@ -84,7 +84,7 @@ describe('Sprint 7 Challenge Learner Tests', () => {
   })
   test('renders a text that reads "Javascript is pretty awesome"', () => {
     render(<HelloWorld />)
-    const text = screen.queryByText("Javascript is pretty awesome");
+    const text = screen.queryByText("Javascript is pretty awesome", {exact: true});
     expect(text).toBeInTheDocument();
     expect(text).toBeVisible;
   })
