@@ -14,8 +14,8 @@ const formSchema = yup.object().shape({
   fullName: yup.string().trim().required()
     .min(3, validationErrors.fullNameTooShort)
     .max(20, validationErrors.fullNameTooLong),
-  size: yup.string()
-    .required(validationErrors.sizeIncorrect)
+  size: yup.string(validationErrors.sizeIncorrect)
+    .required()
     .oneOf(['S', 'M', 'L']),
   toppings: yup.object().shape({
     topping_1: yup.boolean(),
@@ -36,7 +36,7 @@ const getInitialValues = () => ({
 const getInitialErrors = () => ({
   fullName: '',
   size: '',
-  toppings: [],
+  toppings: {},
 })
 
 
@@ -55,67 +55,70 @@ export default function Form() {
   const [errors, setErrors] = useState(getInitialErrors())
   const [serverSuccess, setServerSuccess] = useState()
   const [serverFailure, setServerFailure] = useState()
+  const [submitEnabled, setSubmitEnabled] = useState(false)
 
   useEffect(() => {
-    formSchema.isValid(values)
-    .then(valid => setErrors(prevErrors => ({ ...prevErrors, submit: valid })))
-    .catch(() => setErrors(prevErrors => ({ ...prevErrors, submit: true })));
-  }, [values, formSchema]);
+    const isFullNameValid = values.fullName && values.fullName.trim() !== '';
+    const isSizeValid = values.size && values.size.trim() !== '';
+
+    setSubmitEnabled(isFullNameValid && isSizeValid);
+  }, [values]);
 
   const onChange = evt => {
-    const { id, checked } = evt.target;
+    const { id, checked, value } = evt.target;
 
     if (id === 'fullName') {
-      setValues({ ...values, fullName: evt.target.value });
-
-      yup.reach(formSchema, 'fullName')
-        .validate(evt.target.value)
-        .then(() => setErrors({ ...errors, fullName: '' }))
-        .catch( err => setErrors({ ...errors, fullName: err.errors[0] }));
+      setValues({ ...values, fullName: value });
     } else if (id === 'size') {
-      setValues({ ...values, size: evt.target.value });
+      setValues({ ...values, size: value });
+    } else if (id.startsWith('topping_')) {
+      const toppingId = id.replace('topping_', '');
+        const updatedToppings = values.toppings.map(topping => 
+          topping.topping_id === toppingId ? {...topping, selected: checked } : topping
+      );
+      setValues({ ...values, toppings: updatedToppings });
+    }
 
-      yup.reach(formSchema, 'size') 
-        .validate(evt.target.value)
-        .then(() => setErrors({ ...errors, size: ''}))
-        .catch( err => setErrors({ ...values, size: err.errors[0] }));
-     } else if (id.startsWith('topping_')) {
-        const toppingId = id.replace('topping_', '');
-        const updatedToppings = values.toppings.map(topping => {
-          if (topping.topping_id === toppingId) {
-            return { ...topping, selected: checked };
-        }
-        return topping;
-      });
+    formSchema.validate(values)
+      .then(() => setErrors({}))
+      .catch(err => setErrors(err.errors));
+  };
 
-        setValues({ ...values, toppings: updatedToppings });
 
-    
-      yup.reach(formSchema, `toppings.${toppingId}`)
-        .validate(checked)
-        .then(() => setErrors({ ...errors, [id]: ''}))
-        .catch(err => setErrors({ ...errors, [id]: err.errors[0] }));
-    } else if (id === 'submit') {
-        if (errors.submit) {
-        evt.preventDefault();
-    
+    const handleSubmit = evt => {
+      evt.preventDefault()
 
-    axios.post('http://localhost:9009/api/order', values)
+      const selectedToppings = values.toppings
+        .filter(topping => topping.selected)
+        .reduce((acc, topping) => {
+          acc[topping.topping_id] = {
+            text: topping.text,
+            selected: topping.selected
+          };
+          return acc;
+        }, {});
+
+      const formData = {
+        fullName: values.fullName,
+        size: values.size,
+        toppings: selectedToppings
+      };
+      
+      axios.post('http://localhost:9009/api/order', formData)
       .then(res => {
-        setValues(getInitialValues());
-        setServerSuccess(res.data.message);
-        setServerFailure(null);
+        setValues(getInitialValues())
+        setServerSuccess(res.data.message)
+        setServerFailure()
       })
       .catch(err => {
-        setServerFailure(err.response.data.message);
-        setServerSuccess(null);
-      });
+        setServerFailure(err.response.data.message)
+        setServerSuccess()
+      })
     }
-  }
-};
+  
 
   return (
-    <form>
+    <form onSubmit={handleSubmit}>
       <h2>Order Your Pizza</h2>
       {serverSuccess && <div className='success'>{serverSuccess}</div>}
       {serverFailure && <div className='failure'>{serverFailure}</div>}
@@ -171,12 +174,10 @@ export default function Form() {
       </div>
       {/* 👇 Make sure the submit stays disabled until the form validates! */}
       <input 
-      type="submit" 
       id="submit"
-      disabled={errors.submit} 
+      disabled={!submitEnabled} 
+      type="submit" 
       />
     </form>
-  );
-
-  
+  )
 }

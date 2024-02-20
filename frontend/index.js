@@ -7,9 +7,8 @@ import './styles/styles.css'
 const domNode = document.getElementById('root')
 const root = createRoot(domNode)
 
-setTimeout(() => {
+
   root.render(
     <App />
-  );
-}, 0);
+  )
 
