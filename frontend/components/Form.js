@@ -30,13 +30,19 @@ const formSchema = yup.object().shape({
 const getInitialValues = () => ({
   fullName: '',
   size: '',
-  toppings: toppings.map(topping => ({ ...topping, selected: false })),
+  toppings: {
+    topping_1: false,
+    topping_2: false,
+    topping_3: false,
+    topping_4: false,
+    topping_5: false,
+  }, //toppings.map(topping => ({ ...topping, selected: false }))
 })
 
 const getInitialErrors = () => ({
   fullName: '',
   size: '',
-  toppings: {},
+  toppings: [],
 })
 
 
@@ -73,10 +79,13 @@ export default function Form() {
       setValues({ ...values, size: value });
     } else if (id.startsWith('topping_')) {
       const toppingId = id.replace('topping_', '');
-        const updatedToppings = values.toppings.map(topping => 
-          topping.topping_id === toppingId ? {...topping, selected: checked } : topping
-      );
-      setValues({ ...values, toppings: updatedToppings });
+      setValues(prevValues => ({
+        ...prevValues,
+        toppings: {
+          ...prevValues.toppings,
+          [toppingId]: checked
+        }
+      }));
     }
 
     formSchema.validate(values)
@@ -88,15 +97,17 @@ export default function Form() {
     const handleSubmit = evt => {
       evt.preventDefault()
 
-      const selectedToppings = values.toppings
-        .filter(topping => topping.selected)
-        .reduce((acc, topping) => {
-          acc[topping.topping_id] = {
-            text: topping.text,
-            selected: topping.selected
-          };
-          return acc;
-        }, {});
+      const selectedToppings = Object.keys(values.toppings).filter(toppingId => values.toppings[toppingId]);
+
+      // const selectedToppings = values.toppings
+      //   .filter(topping => topping.selected)
+      //   .reduce((acc, topping) => {
+      //     acc[topping.topping_id] = {
+      //       text: topping.text,
+      //       selected: topping.selected
+      //     };
+      //     return acc;
+      //   }, {});
 
       const formData = {
         fullName: values.fullName,
@@ -106,15 +117,16 @@ export default function Form() {
       
       axios.post('http://localhost:9009/api/order', formData)
       .then(res => {
-        setValues(getInitialValues())
-        setServerSuccess(res.data.message)
-        setServerFailure()
+        const { message, data } = res.data
+        setValues(getInitialValues());
+        setServerSuccess(message);
+        setServerFailure(null);
       })
       .catch(err => {
         setServerFailure(err.response.data.message)
-        setServerSuccess()
-      })
-    }
+        setServerSuccess(null)
+      });
+    };
   
 
   return (
