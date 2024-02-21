@@ -1,11 +1,12 @@
 import React from 'react';
 import Home from './Home';
 import Form from './Form';
-import { Route, Routes, Link } from 'react-router-dom';
+import { BrowserRouter, Route, Routes, Link } from 'react-router-dom';
 
 function App() {
   return (
     <div id="app">
+      <BrowserRouter>
       <nav>
         {/* NavLinks here */}
         <Link to="/">Home</Link>
@@ -16,6 +17,7 @@ function App() {
         <Route path="/" element={<Home />} />
         <Route path="/order" element={<Form />} />
       </Routes>
+      </BrowserRouter>
     </div>
   )
 }

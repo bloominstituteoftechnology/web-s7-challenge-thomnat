@@ -14,29 +14,16 @@ const formSchema = yup.object().shape({
   fullName: yup.string().trim().required()
     .min(3, validationErrors.fullNameTooShort)
     .max(20, validationErrors.fullNameTooLong),
-  size: yup.string(validationErrors.sizeIncorrect)
+  size: yup.string()
     .required()
-    .oneOf(['S', 'M', 'L']),
-  toppings: yup.object().shape({
-    topping_1: yup.boolean(),
-    topping_2: yup.boolean(),
-    topping_3: yup.boolean(),
-    topping_4: yup.boolean(),
-    topping_5: yup.boolean(),
-  })
+    .oneOf(['S', 'M', 'L'], validationErrors.sizeIncorrect),
 });
 
 
 const getInitialValues = () => ({
   fullName: '',
   size: '',
-  toppings: {
-    topping_1: false,
-    topping_2: false,
-    topping_3: false,
-    topping_4: false,
-    topping_5: false,
-  }, //toppings.map(topping => ({ ...topping, selected: false }))
+  toppings: [],
 })
 
 const getInitialErrors = () => ({
@@ -64,68 +51,56 @@ export default function Form() {
   const [submitEnabled, setSubmitEnabled] = useState(false)
 
   useEffect(() => {
-    const isFullNameValid = values.fullName && values.fullName.trim() !== '';
-    const isSizeValid = values.size && values.size.trim() !== '';
+   formSchema.isValid(values).then((isValid) => {
+    setSubmitEnabled(isValid)
+   })
+  }, [values.fullName, values.size]);
 
-    setSubmitEnabled(isFullNameValid && isSizeValid);
-  }, [values]);
+  const validate = (key, value) => {
+    yup
+    .reach(formSchema, key)
+    .validate(value)
+    .then(() => {
+      setErrors({ ...errors, [key]: ''})
+    }).catch(errors => {
+      setErrors({ ...errors, [key]: errors.errors[0] })
+    })
+  }
+
+  const changeTopping = (evt) => {
+    const { name, checked } = evt.target
+    if (checked) setValues({ ...values, toppings: [ ...values.toppings, name ]})
+  else setValues({ ...values, toppings: values.toppings.filter(t => t != name )})
+  }
 
   const onChange = evt => {
-    const { id, checked, value } = evt.target;
+    const { id, value } = evt.target;
 
-    if (id === 'fullName') {
-      setValues({ ...values, fullName: value });
-    } else if (id === 'size') {
-      setValues({ ...values, size: value });
-    } else if (id.startsWith('topping_')) {
-      const toppingId = id.replace('topping_', '');
-      setValues(prevValues => ({
-        ...prevValues,
-        toppings: {
-          ...prevValues.toppings,
-          [toppingId]: checked
-        }
-      }));
-    }
 
-    formSchema.validate(values)
-      .then(() => setErrors({}))
-      .catch(err => setErrors(err.errors));
+
+    validate(id, value)
+    setValues({ ...values, [id]: value })
+
+
+    
   };
 
 
     const handleSubmit = evt => {
       evt.preventDefault()
 
-      const selectedToppings = Object.keys(values.toppings).filter(toppingId => values.toppings[toppingId]);
-
-      // const selectedToppings = values.toppings
-      //   .filter(topping => topping.selected)
-      //   .reduce((acc, topping) => {
-      //     acc[topping.topping_id] = {
-      //       text: topping.text,
-      //       selected: topping.selected
-      //     };
-      //     return acc;
-      //   }, {});
-
-      const formData = {
-        fullName: values.fullName,
-        size: values.size,
-        toppings: selectedToppings
-      };
       
-      axios.post('http://localhost:9009/api/order', formData)
+      
+      axios.post('http://localhost:9009/api/order', values)
       .then(res => {
-        const { message, data } = res.data
+        setServerSuccess(res.data.message);
+        setServerFailure('');
         setValues(getInitialValues());
-        setServerSuccess(message);
-        setServerFailure(null);
       })
       .catch(err => {
         // console.log(error.response.data);
-        setServerFailure(err.response.data.message)
-        setServerSuccess(null)
+        setServerFailure(err?.response?.data?.message)
+        setServerSuccess('')
       });
     };
   
@@ -170,20 +145,17 @@ export default function Form() {
 
       <div className="input-group">
         {/* 👇 Maybe you could generate the checkboxes dynamically */}
-        <label>
-          {toppings.map((topping) => (
-            <div key={topping.topping_id}>
+          {toppings.map(({topping_id, text}) => (
+            <label key={topping_id}>
             <input 
             type="checkbox" 
-            id={`topping_${topping.topping_id}`}
-            value={topping.topping_id}
-            checked={topping.selected}
-            onChange={onChange}
+            checked={!!values.toppings.find(t => t == topping_id)}
+            onChange={changeTopping}
+            name={topping_id}
             />
-            {topping.text}
-            </div>
+            {text}
+            </label>
           ))}
-        </label>
       </div>
       {/* 👇 Make sure the submit stays disabled until the form validates! */}
       <input 
