@@ -15,6 +15,7 @@ mvpA.test.js
 */
 import React from 'react'
 import App from './frontend/components/App'
+import { BrowserRouter as Router } from 'react-router-dom'
 import { render, screen, fireEvent, waitFor } from '@testing-library/react'
 import '@testing-library/jest-dom'
 import server from './backend/mock-server'
@@ -32,7 +33,7 @@ const renderApp = ui => {
 
 beforeAll(() => { server.listen() })
 afterAll(() => { server.close() })
-beforeEach(() => { renderApp(<App />) })
+beforeEach(() => { renderApp(<Router><App /></Router>) })
 afterEach(() => { server.resetHandlers() })
 
 describe('Sprint 7 Challenge Codegrade Tests', () => {
